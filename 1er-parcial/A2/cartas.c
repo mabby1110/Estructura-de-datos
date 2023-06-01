@@ -26,10 +26,6 @@ void inicializarJugadores(Mesa* mesa, Jugador* jugador1, Jugador* jugador2) {
     // Inicializar el generador de números aleatorios
     srand(time(NULL));
     
-    // Asignar un ID a cada jugador
-    jugador1->id = 1;
-    jugador2->id = 2;
-    
     // Crear una lista de 52 barajas
     Carta baraja[52];
     
@@ -67,7 +63,10 @@ void inicializarJugadores(Mesa* mesa, Jugador* jugador1, Jugador* jugador2) {
         baraja[i] = baraja[j];
         baraja[j] = temp;
     }
-    
+    // Asignar un ID a cada jugador
+    jugador1->id = 1;
+    jugador2->id = 2;
+
     // Asignar cartas a la mano de cada jugador
     for (int i = 0; i < 5; ++i) {
         jugador1->mano[i] = baraja[i];
@@ -82,9 +81,10 @@ void inicializarJugadores(Mesa* mesa, Jugador* jugador1, Jugador* jugador2) {
     mesa->carta_mesa = baraja[10];
 }
 
-void menu(Mesa* mesa){
+void menu(Mesa* mesa, Jugador* jugador){
     printf("\nMESA\n");
     printf("carta en la mesa -> %d de %s\n\n", mesa->carta_mesa.num, mesa->carta_mesa.palo);
+    printf("turno jugador %d\n", jugador->id);
 }
 
 // acciones jugador
@@ -101,33 +101,42 @@ int main() {
     Mesa mesa;
     int opc;
     int turno_jugador = 1;
-    
+
     // Inicializar jugadores
+    // se crea mazo, se revuelve maso, se reparten cartas, se 1 destapa
     inicializarJugadores(&mesa, &jugadores[0], &jugadores[1]);
-    // menu(mesa, &jugadores[0], &jugadores[1]);
 
     while(turno_jugador){
-        system("clear");
-        menu(&mesa);
+        // jugador[turno_jugador-1]
+        // mostrar la mesa, pares jugados, 1 carta destapada
+        menu(&mesa, &jugadores[turno_jugador-1]);
+
+        printf("\nopciones");
+        printf("\n1) jugar carta en la mesa");
+        printf("\n2) jugar siguiente carta");
+
         opc = input();
-            // jugador[turno_jugador-1]
-            // mostrar la mesa, pares jugados, 1 carta destapada
-
-            // opciones
-
+        // opciones
+        switch(opc){
+            case 1:
             // 1) jugar carta mesa
                 // es par, poner en la mesa
                 // volver a opciones
-
+                printf("%d", opc);
+                break;
+            case 2:
             // 2) jugar baraja
                 // es par, poner en la mesa
                 // pasar
+                break;
+            default:
+                printf("seleccione una opcion valida");
+                break;
+        }
 
-            // int es_par(Jugador* jugador) {
-            //     *jugador->mano[0];
-            // }
-
+        system("clear");
     }
 
     return 0;
 }
+
