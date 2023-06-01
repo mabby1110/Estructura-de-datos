@@ -12,9 +12,17 @@ typedef struct Carta {
 typedef struct Jugador {
     int id;
     Carta mano[6];
+    Carta juego[3][2];
 } Jugador;
 
-void inicializarJugadores(Jugador* jugador1, Jugador* jugador2) {
+typedef struct Mesa {
+    Carta carta_mesa;
+    Carta baraja[52];
+    Carta *index;
+} Mesa;
+
+// juego
+void inicializarJugadores(Mesa* mesa, Jugador* jugador1, Jugador* jugador2) {
     // Inicializar el generador de números aleatorios
     srand(time(NULL));
     
@@ -45,7 +53,7 @@ void inicializarJugadores(Jugador* jugador1, Jugador* jugador2) {
                     snprintf(baraja[indice].palo, sizeof(baraja[indice].palo), "%s", "Diamantes");
                     break;
             }
-            
+
             indice++;
         }
     }
@@ -69,27 +77,56 @@ void inicializarJugadores(Jugador* jugador1, Jugador* jugador2) {
     // Dejar un espacio vacío para una carta extra
     jugador1->mano[5].num = 0;
     jugador2->mano[5].num = 0;
-    snprintf(jugador1->mano[5].palo, sizeof(jugador1->mano[5].palo), "%s", "");
-    snprintf(jugador2->mano[5].palo, sizeof(jugador2->mano[5].palo), "%s", "");
+
+    // incializar mesa
+    mesa->carta_mesa = baraja[10];
 }
 
+void menu(Jugador* jugador1, Jugador* jugador2){
+    printf("\nmenu");
+}
+
+// acciones jugador
+int input(){
+    int opc;
+    printf("- - seleccione una opcion - -\n");
+    scanf("%d", &opc);
+
+    return opc;
+}
 
 int main() {
     Jugador jugadores[2];
+    Mesa mesa;
+    int opc;
     
     // Inicializar jugadores
-    inicializarJugadores(&jugadores[0], &jugadores[1]);
-    
-    // Imprimir la mano de cada jugador
-    printf("Jugador %d:\n", jugadores[0].id);
-    for (int i = 0; i < 6; ++i) {
-        printf("Carta %d: %d %s\n", i+1, jugadores[0].mano[i].num, jugadores[0].mano[i].palo);
+    inicializarJugadores(&mesa, &jugadores[0], &jugadores[1]);
+    // menu(mesa, &jugadores[0], &jugadores[1]);
+
+    while(1){
+        // while(turno_jugaro) =1 =2 =0
+            // jugador[turno_jugador-1]
+            // mostrar la mesa, pares jugados, 1 carta destapada
+            // opciones
+
+            // 1) jugar carta mesa
+                // es par, poner en la mesa
+                // volver a opciones
+
+            // 2) jugar baraja
+                // es par, poner en la mesa
+                // pasar
+
+            
+            // int es_par(Jugador* jugador) {
+            //     *jugador->mano[0];
+            // }
+
+        opc = input();
+
+
     }
-    
-    printf("\nJugador %d:\n", jugadores[1].id);
-    for (int i = 0; i < 6; ++i) {
-        printf("Carta %d: %d %s\n", i+1, jugadores[1].mano[i].num, jugadores[1].mano[i].palo);
-    }
-    
+
     return 0;
 }
