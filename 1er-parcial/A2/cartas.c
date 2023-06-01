@@ -122,7 +122,6 @@ int main() {
             // 1) jugar carta mesa
                 // es par, poner en la mesa
                 // volver a opciones
-                printf("%d", opc);
                 break;
             case 2:
             // 2) jugar baraja
@@ -133,7 +132,6 @@ int main() {
                 printf("seleccione una opcion valida");
                 break;
         }
-
         system("clear");
     }
 
