@@ -82,8 +82,9 @@ void inicializarJugadores(Mesa* mesa, Jugador* jugador1, Jugador* jugador2) {
     mesa->carta_mesa = baraja[10];
 }
 
-void menu(Jugador* jugador1, Jugador* jugador2){
-    printf("\nmenu");
+void menu(Mesa* mesa){
+    printf("\nMESA\n");
+    printf("carta en la mesa -> %d de %s\n\n", mesa->carta_mesa.num, mesa->carta_mesa.palo);
 }
 
 // acciones jugador
@@ -99,15 +100,19 @@ int main() {
     Jugador jugadores[2];
     Mesa mesa;
     int opc;
+    int turno_jugador = 1;
     
     // Inicializar jugadores
     inicializarJugadores(&mesa, &jugadores[0], &jugadores[1]);
     // menu(mesa, &jugadores[0], &jugadores[1]);
 
-    while(1){
-        // while(turno_jugaro) =1 =2 =0
+    while(turno_jugador){
+        system("clear");
+        menu(&mesa);
+        opc = input();
             // jugador[turno_jugador-1]
             // mostrar la mesa, pares jugados, 1 carta destapada
+
             // opciones
 
             // 1) jugar carta mesa
@@ -118,13 +123,9 @@ int main() {
                 // es par, poner en la mesa
                 // pasar
 
-            
             // int es_par(Jugador* jugador) {
             //     *jugador->mano[0];
             // }
-
-        opc = input();
-
 
     }
 
