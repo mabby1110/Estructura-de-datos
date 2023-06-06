@@ -82,19 +82,26 @@ void inicializarJugadores(Mesa* mesa, Jugador* jugador1, Jugador* jugador2) {
 }
 
 void menu(Mesa* mesa, Jugador* jugador){
-    printf("\nMESA\n");
+    printf("\nMESA\n\n");
     printf("carta en la mesa -> %d de %s\n\n", mesa->carta_mesa.num, mesa->carta_mesa.palo);
     printf("turno jugador %d\n", jugador->id);
+    printf("tus cartas\n");
 }
 
 // acciones jugador
 int input(){
     int opc;
-    printf("- - seleccione una opcion - -\n");
+    printf("\n- - seleccione una opcion - -\n");
     scanf("%d", &opc);
 
     return opc;
 }
+
+// int jugar_carta(Mesa* mesa, Jugador* jugador){
+//     // mostrar mazo para seleccionar dos cartas
+//     // comprobar si es par
+//     // devolver resultado
+// }
 
 int main() {
     Jugador jugadores[2];
