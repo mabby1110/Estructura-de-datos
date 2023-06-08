@@ -6,8 +6,8 @@ SRC1 = pilas
 SRC2 = colas
  
 all:
-	$(CC) $(SRC1).c $(CFLAGS) -o $(SRC1)
-	$(CC) $(SRC2).c $(CFLAGS) -o $(SRC2)
+	$(CC) $(SRC1).c $(CFLAGS) -o $(SRC1).o
+	$(CC) $(SRC2).c $(CFLAGS) -o $(SRC2).o
 debug:
 	$(CC) $(SRC1).c $(CFLAGS) -o $(SRC1)
 	$(CC) $(SRC2).c $(CFLAGS) -o $(SRC2)

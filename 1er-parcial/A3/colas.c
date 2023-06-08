@@ -61,7 +61,8 @@ void enviarAImpresion(Cola* cola) {
     printf("Ingrese el nombre de usuario: ");
     scanf("%s", trabajo.usuario);
     printf("Ingrese el carácter a imprimir: ");
-    scanf(" %c", &(trabajo.caracter)); // El espacio antes de %c es para evitar el buffer de entrada
+    // El espacio antes de %c es para evitar el buffer de entrada
+    scanf(" %c", &(trabajo.caracter));
     printf("Ingrese el número de apariciones: ");
     scanf("%d", &(trabajo.apariciones));
 
