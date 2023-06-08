@@ -2,14 +2,18 @@ CC = gcc
 CFLAGS = -Wall
 DEBUG = -g
 
-SOURCES = pilas
+SRC1 = pilas
+SRC2 = colas
  
 all:
-	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES)
+	$(CC) $(SRC1).c $(CFLAGS) -o $(SRC1)
+	$(CC) $(SRC2).c $(CFLAGS) -o $(SRC2)
 debug:
-	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES)
+	$(CC) $(SRC1).c $(CFLAGS) -o $(SRC1)
+	$(CC) $(SRC2).c $(CFLAGS) -o $(SRC2)
 clean:
-	rm -f $(SOURCES).o
+	rm -f $(SRC1).o
+	rm -f $(SRC1).o
 fresh:
 	make clean
 	make all 
