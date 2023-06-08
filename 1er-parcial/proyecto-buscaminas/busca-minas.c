@@ -27,9 +27,18 @@ void seleccionar(int *x, int *y){
     scanf("%d", y);
 }
 
-int checar(char grid[SIZE+2][SIZE+2],int x,int y){
+int checar(char grid[SIZE+2][SIZE+2], int x, int y){
+    // if(grid[y][x] == "x"){
+    //     return -1;
+    // } else {
+    for(int j=3; j>0; j--){
+        for(int i=3; i>0; i--){
+            printf("y: %d\t", y+2-j);
+            printf("x: %d\n", x+2-i);
+        }
+    }
 
-
+    // }
 
     return 0;
 }
