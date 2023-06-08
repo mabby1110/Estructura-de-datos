@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -16,9 +16,8 @@ typedef struct Jugador {
 } Jugador;
 
 typedef struct Mesa {
-    Carta carta_mesa;
+    Carta *carta_mesa;
     Carta baraja[52];
-    Carta *index;
 } Mesa;
 
 // juego
@@ -63,6 +62,7 @@ void inicializarJugadores(Mesa* mesa, Jugador* jugador1, Jugador* jugador2) {
         baraja[i] = baraja[j];
         baraja[j] = temp;
     }
+    
     // Asignar un ID a cada jugador
     jugador1->id = 1;
     jugador2->id = 2;
@@ -72,20 +72,15 @@ void inicializarJugadores(Mesa* mesa, Jugador* jugador1, Jugador* jugador2) {
         jugador1->mano[i] = baraja[i];
         jugador2->mano[i] = baraja[i + 5];
     }
-    
-    // Dejar un espacio vacío para una carta extra
-    jugador1->mano[5].num = 0;
-    jugador2->mano[5].num = 0;
 
     // incializar mesa
-    mesa->carta_mesa = baraja[10];
+    memcpy(mesa->baraja, baraja, sizeof(baraja));
+    mesa->carta_mesa = &baraja[10];
 }
 
 void menu(Mesa* mesa, Jugador* jugador){
-    printf("\nMESA\n\n");
-    printf("carta en la mesa -> %d de %s\n\n", mesa->carta_mesa.num, mesa->carta_mesa.palo);
     printf("turno jugador %d\n", jugador->id);
-    printf("tus cartas\n");
+    printf("carta en la mesa -> %d de %s\n\n", mesa->carta_mesa->num, mesa->carta_mesa->palo);
 }
 
 // acciones jugador
@@ -97,13 +92,20 @@ int input(){
     return opc;
 }
 
-// int jugar_carta(Mesa* mesa, Jugador* jugador){
-//     // mostrar mazo para seleccionar dos cartas
-//     // comprobar si es par
-//     // devolver resultado
-// }
+void ver_cartas(Jugador* jugador){
+    printf("-----tus cartas-----");
+    for(int i=0; i<6; i++){
+        printf("\n[%d] %d\t%s", i+1, jugador->mano[i].num, jugador->mano[i].palo);
+    }
+    printf("\n--------------------\n");
+}
+
+void tomar_carta(Mesa* mesa, Jugador* jugador){
+    jugador->mano[5] = *mesa->carta_mesa;
+}
 
 int main() {
+    system("clear");
     Jugador jugadores[2];
     Mesa mesa;
     int opc;
@@ -117,6 +119,7 @@ int main() {
         // jugador[turno_jugador-1]
         // mostrar la mesa, pares jugados, 1 carta destapada
         menu(&mesa, &jugadores[turno_jugador-1]);
+        ver_cartas(&jugadores[turno_jugador-1]);
 
         printf("\nopciones");
         printf("\n1) jugar carta en la mesa");
@@ -126,14 +129,15 @@ int main() {
         // opciones
         switch(opc){
             case 1:
-            // 1) jugar carta mesa
-                // es par, poner en la mesa
-                // volver a opciones
+                // tomar_carta(&mesa, &jugadores[turno_jugador-1]);
+                // elegir par
+                // pagar
                 break;
             case 2:
-            // 2) jugar baraja
-                // es par, poner en la mesa
-                // pasar
+                // mostrar siguiente carta
+                // tomar carta
+                // elegir par
+                // pagar
                 break;
             default:
                 printf("seleccione una opcion valida");
