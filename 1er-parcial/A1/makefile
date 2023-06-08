@@ -5,9 +5,9 @@ DEBUG = -g
 SOURCES = amigos
  
 all:
-	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES)
+	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES).o
 debug:
-	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES)
+	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES).o
 clean:
 	rm -f $(SOURCES).o
 fresh:
