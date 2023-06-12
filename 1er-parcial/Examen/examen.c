@@ -6,18 +6,15 @@
 // recorrer arreglo con puntero
 
 int main() {
-    char arreglo[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    char arreglo[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n";
     char *pArreglo = NULL;
     pArreglo = &arreglo[strlen(arreglo)-1];
 
-    printf("tamanio: %d %c\n", strlen(arreglo), *pArreglo);
-
+    printf("arreglo: %s", arreglo);
     // Recorrer el arreglo utilizando el puntero
     while (&arreglo[0] <= pArreglo) {
-        // printf("arreglo %p apuntador %p", arreglo, pArreglo);
         printf("\n%c", *pArreglo);
         pArreglo--;
-        // getchar();
     }
 
     return 0;

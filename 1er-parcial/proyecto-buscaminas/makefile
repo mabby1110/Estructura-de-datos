@@ -5,9 +5,9 @@ DEBUG = -g
 SOURCES = busca-minas
  
 all:
-	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES)
+	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES).o -lncurses
 debug:
-	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES)
+	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES).o -lncurses
 clean:
 	rm -f $(SOURCES).o
 fresh:
