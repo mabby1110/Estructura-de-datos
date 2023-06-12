@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 
 #define GRID_SIZE 15
 #define NUM_MINES 10
@@ -106,27 +107,57 @@ void drawGrid(Cell grid[GRID_SIZE][GRID_SIZE], Game *player) {
     refresh();
 }
 
-void save(Game *player){
-    int file;
-    file = open("highScores.txt",O_WRONLY | O_CREAT);
-    if (file == -1){
-        printf("no fue posible crear o modificar el archivo ...");
+void saveScore(Game jugador, int archivo) {
+    char buffer[50];
+    int bytesEscritos;
+    sprintf(buffer, "%s %d\n", jugador.tag, jugador.maxScore);
+    bytesEscritos = write(archivo, buffer, strlen(buffer));
+    if (bytesEscritos == -1) {
+        printf("Error al escribir en el archivo.\n");
         exit(1);
-    } else{
-        write (file, player, sizeof(Game));
-        close(file);
     }
 }
 
-void open(Game *player){
-    int file;
-    file = open("highScores.txt", O_RDONLY );
-    if (file == -1){
-        printf("no fue posible abrir el archivo o no existe ...");
+void sortScore(Game *jugadores, int maxHighscores) {
+    int i, j;
+    Game temp;
+    for (i = 0; i < maxHighscores - 1; i++) {
+        for (j = 0; j < maxHighscores - i - 1; j++) {
+            if (jugadores[j].maxScore < jugadores[j + 1].maxScore) {
+                temp = jugadores[j];
+                jugadores[j] = jugadores[j + 1];
+                jugadores[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void readHighscores(int archivo) {
+    char buffer[50];
+    int bytesLeidos;
+    while ((bytesLeidos = read(archivo, buffer, sizeof(buffer))) > 0) {
+        mvprintw(6, 0, "%.*s", bytesLeidos, buffer);
+    }
+    if (bytesLeidos == -1) {
+        printf("Error al leer el archivo.\n");
         exit(1);
-    } else{
-        read (file, Datos, sizeof(struct ejemplo)*3);
-        close(file);
+    }
+}
+
+void updateHighscores(Game jugador, Game *jugadores, int *maxHighscores) {
+    // Si la lista está llena y el jugador no supera el puntaje máximo
+    if (*maxHighscores >= 3 && jugador.maxScore <= jugadores[2].maxScore) {
+        return;
+    }
+
+    // Si el jugador supera el puntaje máximo y la lista no está llena
+    if (*maxHighscores < 3) {
+        jugadores[*maxHighscores] = jugador;
+        (*maxHighscores)++;
+        sortScore(jugadores, *maxHighscores);
+    } else { // Si el jugador supera el puntaje máximo y la lista está llena
+        jugadores[2] = jugador;
+        sortScore(jugadores, *maxHighscores);
     }
 }
 
@@ -135,15 +166,41 @@ int main() {
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
+
+    // menu
     mvprintw(0, 0, "Buscaminas");
     mvprintw(2, 0, "puntaje mas alto");
-    // aqui voy a abrir el archivo con los puntajes
+        // aqui voy a abrir el archivo con los puntajes
     mvprintw(4, 0, "presiona culquier tecla para empezar");
+
+    Game player[3] = {{"mabby", 0, 0, 0},{"ybbam", 0, 0, 0}};
+    int archivo;
+    int maxHighscores = 0;
+
+    archivo = open("jugadores.txt", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    if (archivo == -1) {
+        printf("Error al abrir el archivo.\n");
+        exit(1);
+    }
+    
+    updateHighscores(player[0], player, &maxHighscores);
+    updateHighscores(player[1], player, &maxHighscores);
+    for (int i = 0; i < maxHighscores; i++) {
+        saveScore(player[i], archivo);
+    }
+    close(archivo);
+
+    archivo = open("jugadores.txt", O_RDONLY);
+    if (archivo == -1) {
+        printf("Error al abrir el archivo.\n");
+        exit(1);
+    }
+
+    readHighscores(archivo);
+
+    close(archivo);
+
     getch();
-
-    Game player = {"mabby", 0, 0, 0};
-    save(&player);
-
     do {
         Cell grid[GRID_SIZE][GRID_SIZE] = {0};
 
@@ -153,17 +210,17 @@ int main() {
         int y = 2;
 
         while (1) {
-            drawGrid(grid, &player);
+            drawGrid(grid, &player[0]);
 
-            if(player.levelScore == WIN_CONDITION){
-                player.level ++;
-                player.maxScore = player.maxScore + player.levelScore;
+            if(player[0].levelScore == WIN_CONDITION){
+                player[0].level ++;
+                player[0].maxScore = player[0].maxScore + player[0].levelScore;
                 mvprintw(0, 0, "NIVEL COMPLETADO ...");
                 refresh();
                 sleep(2);
                 break;
             } else{
-                mvprintw(0, 0, "Puntos: %d\tnivel: %d", player.maxScore + player.levelScore, player.level+1);
+                mvprintw(0, 0, "Puntos: %d\tnivel: %d", player[0].maxScore + player[0].levelScore, player[0].level+1);
                 mvprintw(GRID_SIZE + 3, 0, "Utiliza las teclas de dirección para moverte y la barra espaciadora para revelar una casilla.");
                 mvprintw(y, x, "");
             }
