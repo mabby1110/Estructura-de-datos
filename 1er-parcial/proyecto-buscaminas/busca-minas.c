@@ -47,20 +47,16 @@ int countAdjacentMines(Cell grid[GRID_SIZE][GRID_SIZE], int x, int y) {
     return count;
 }
 
-void revealCell(Cell grid[GRID_SIZE][GRID_SIZE], int x, int y) {
+int revealCell(Cell grid[GRID_SIZE][GRID_SIZE], int x, int y) {
     if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE || grid[x][y].revealed) {
-        return;
+        return 0;
     }
     
     grid[x][y].revealed = true;
     
+    // condicion para perder el juego
     if (grid[x][y].mine) {
-        // Mostrar el mensaje de juego perdido
-        mvprintw(GRID_SIZE + 2, 0, "¡Has perdido! Presiona cualquier tecla para salir...");
-        refresh();
-        getch();
-        endwin();
-        exit(0);
+        return 1;
     }
     
     int adjacentMines = countAdjacentMines(grid, x, y);
@@ -78,6 +74,7 @@ void revealCell(Cell grid[GRID_SIZE][GRID_SIZE], int x, int y) {
             }
         }
     }
+    return 0;
 }
 
 void drawGrid(Cell grid[GRID_SIZE][GRID_SIZE], Game *player) {
@@ -107,14 +104,17 @@ void drawGrid(Cell grid[GRID_SIZE][GRID_SIZE], Game *player) {
     refresh();
 }
 
-void saveScore(Game jugador, int archivo) {
+void saveScore(Game *player, int archivo, int *maxHighscores) {
     char buffer[50];
     int bytesEscritos;
-    sprintf(buffer, "%s %d\n", jugador.tag, jugador.maxScore);
-    bytesEscritos = write(archivo, buffer, strlen(buffer));
-    if (bytesEscritos == -1) {
-        printf("Error al escribir en el archivo.\n");
-        exit(1);
+
+    for (int i = 0; i < *maxHighscores; i++) {
+        sprintf(buffer, "%s %d\n", player[i].tag, player[i].maxScore);
+        bytesEscritos = write(archivo, buffer, strlen(buffer));
+        if (bytesEscritos == -1) {
+            printf("Error al escribir en el archivo.\n");
+            exit(1);
+        }
     }
 }
 
@@ -132,11 +132,11 @@ void sortScore(Game *jugadores, int maxHighscores) {
     }
 }
 
-void readHighscores(int archivo) {
+void getHighscores(int archivo) {
     char buffer[50];
     int bytesLeidos;
     while ((bytesLeidos = read(archivo, buffer, sizeof(buffer))) > 0) {
-        mvprintw(6, 0, "%.*s", bytesLeidos, buffer);
+        mvprintw(3, 3, "%.*s", bytesLeidos, buffer);
     }
     if (bytesLeidos == -1) {
         printf("Error al leer el archivo.\n");
@@ -161,21 +161,8 @@ void updateHighscores(Game jugador, Game *jugadores, int *maxHighscores) {
     }
 }
 
-int main() {
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
-
-    // menu
-    mvprintw(0, 0, "Buscaminas");
-    mvprintw(2, 0, "puntaje mas alto");
-        // aqui voy a abrir el archivo con los puntajes
-    mvprintw(4, 0, "presiona culquier tecla para empezar");
-
-    Game player[3] = {{"mabby", 0, 0, 0},{"ybbam", 0, 0, 0}};
+void endGame(Game *player, Game currentPlayer, int *maxHighscores) {
     int archivo;
-    int maxHighscores = 0;
 
     archivo = open("jugadores.txt", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     if (archivo == -1) {
@@ -183,51 +170,79 @@ int main() {
         exit(1);
     }
     
-    updateHighscores(player[0], player, &maxHighscores);
-    updateHighscores(player[1], player, &maxHighscores);
-    for (int i = 0; i < maxHighscores; i++) {
-        saveScore(player[i], archivo);
-    }
-    close(archivo);
+    updateHighscores(currentPlayer, player, maxHighscores);
 
+    saveScore(player, archivo, maxHighscores);
+    close(archivo);
+}
+
+int main() {
+    char tag[10];
+
+    int x = 0;
+    int y = 2;
+
+    int ch = getch();
+    int end = 0;
+
+    int archivo;
+    int maxHighscores = 0;
     archivo = open("jugadores.txt", O_RDONLY);
     if (archivo == -1) {
         printf("Error al abrir el archivo.\n");
         exit(1);
     }
 
-    readHighscores(archivo);
+    Game player[3];
+    Game currentPlayer = {0};
+
+    initscr();
+    // Solicitar al usuario que ingrese un nombre
+    mvprintw(1, 1, "Ingresa tu tag (10 max):");
+    getnstr(tag, sizeof(tag) - 1);
+    strcpy(currentPlayer.tag, tag);
+
+    // Iniciando juego, bienvenida
+    clear();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+    
+    // menu
+    mvprintw(0, 0, "bienvenido a Buscaminas, %s", currentPlayer.tag);
+    mvprintw(2, 0, "ultimo juego");
+
+    getHighscores(archivo);
+
+    mvprintw(10, 0, "presiona culquier tecla para empezar");
+    refresh();
 
     close(archivo);
-
     getch();
+    
     do {
         Cell grid[GRID_SIZE][GRID_SIZE] = {0};
-
         generateMines(grid);
 
-        int x = 0;
-        int y = 2;
-
         while (1) {
-            drawGrid(grid, &player[0]);
+            drawGrid(grid, &currentPlayer);
 
-            if(player[0].levelScore == WIN_CONDITION){
-                player[0].level ++;
-                player[0].maxScore = player[0].maxScore + player[0].levelScore;
+            if(currentPlayer.levelScore == WIN_CONDITION){
+                currentPlayer.level ++;
+                currentPlayer.maxScore = currentPlayer.maxScore + currentPlayer.levelScore;
                 mvprintw(0, 0, "NIVEL COMPLETADO ...");
                 refresh();
                 sleep(2);
                 break;
             } else{
-                mvprintw(0, 0, "Puntos: %d\tnivel: %d", player[0].maxScore + player[0].levelScore, player[0].level+1);
-                mvprintw(GRID_SIZE + 3, 0, "Utiliza las teclas de dirección para moverte y la barra espaciadora para revelar una casilla.");
+                mvprintw(0, 0, "Puntos: %d\tnivel: %d", currentPlayer.maxScore + currentPlayer.levelScore, currentPlayer.level+1);
+                mvprintw(GRID_SIZE + 2, 0, "Utiliza las teclas de dirección para moverte y la barra espaciadora para revelar una casilla.");
                 mvprintw(y, x, "");
             }
             refresh();
             
-            int ch = getch();
-            
+
+            ch = getch();
             if (ch == KEY_UP && y > 2) {
                 y--;
             } else if (ch == KEY_DOWN && y < GRID_SIZE + 1) {
@@ -237,7 +252,17 @@ int main() {
             } else if (ch == KEY_RIGHT && x < GRID_SIZE - 1) {
                 x++;
             } else if (ch == ' ') {
-                revealCell(grid, x, y-2);
+                end = revealCell(grid, x, y-2);
+                
+                if(end==1){
+                    mvprintw(GRID_SIZE + 2, 0, "¡Has perdido! Presiona cualquier tecla para salir...\n:(");
+                    refresh();
+                    currentPlayer.maxScore = currentPlayer.maxScore + currentPlayer.levelScore;
+                    endGame(player, currentPlayer, &maxHighscores);
+                    getch();
+                    endwin();
+                    exit(0);
+                }
             }
         }
     } while(1);
