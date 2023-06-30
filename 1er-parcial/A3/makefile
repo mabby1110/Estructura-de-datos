@@ -2,8 +2,8 @@ CC = gcc
 CFLAGS = -Wall
 DEBUG = -g
 
-SRC1 = pilas
-SRC2 = colas
+SRC1 = cola_impresion
+SRC2 = verificador_pares
  
 all:
 	$(CC) $(SRC1).c $(CFLAGS) -o $(SRC1).o
