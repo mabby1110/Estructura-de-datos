@@ -4,8 +4,10 @@
 #include <time.h>
 #include <ncurses.h>
 
-#define WIDTH 40
-#define HEIGHT 20
+#include <conio.h>
+
+#define WIDTH 60
+#define HEIGHT 60
 
 typedef struct {
     int x, y;
@@ -39,7 +41,8 @@ int main() {
 
     while (game_running) {
         draw();
-        input();
+        if(kbhit())
+            input();
         logic();
         usleep(100000);
     }
