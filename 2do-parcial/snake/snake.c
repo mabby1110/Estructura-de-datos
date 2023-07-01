@@ -1,179 +1,144 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "util.h"
 #include <unistd.h>
 #include <time.h>
 #include <ncurses.h>
 
-#include <conio.h>
+#define WIDTH 40
+#define HEIGHT 40
 
-#define WIDTH 60
-#define HEIGHT 60
+#define CABEZA  1
+#define CUERPO  2
+#define MANZANA 3
 
-typedef struct {
-    int x, y;
-} Point;
-
-typedef struct {
-    Point position;
-    int length;
-    int direction;
-    Point body[100];
-} Snake;
+#define DERECHA     1
+#define ARRIBA      2
+#define IZQUIERDA   3
+#define ABAJO       4
 
 typedef struct {
-    Point position;
-    int eaten;
-} Fruit;
+    int x, y, tipo;
+} Nodo;
 
-void setup();
-void draw();
-void input();
-void logic();
-void game_over();
+typedef struct Culebra{
+    Nodo nodo;
+    int dir;
+    struct Culebra *ant, *sig;
+} Culebra;
 
-int game_running = 1;
-int score = 0;
-Snake snake;
-Fruit fruit;
+void setup(Culebra *culebra, Nodo *fruta);
+void draw(Culebra *culebra, Nodo *fruta);
+void grow(Culebra *culebra, Nodo *fruta);
 
-int main() {
-    setup();
+int main(){
+    Culebra culebra;
+    Nodo fruta;
 
-    while (game_running) {
-        draw();
-        if(kbhit())
-            input();
-        logic();
-        usleep(100000);
+    setup(&culebra, &fruta);
+    grow(&culebra, &fruta);
+    grow(&culebra, &fruta);
+    grow(&culebra, &fruta);
+
+    while(1){
+        while(!kbhit()){
+            draw(&culebra, &fruta);
+            switch(culebra.dir){
+                case DERECHA:
+                    culebra.nodo.x++;
+                    break;
+                case ARRIBA:
+                    culebra.nodo.y--;
+                    break; 
+                case IZQUIERDA:
+                    culebra.nodo.x--;
+                    break;
+                case ABAJO:
+                    culebra.nodo.y++;
+                    break;
+            }
+            usleep(100000);
+        }
+        
+        // cambio de direccion
+        char tecla = getch();
+        mvprintw(HEIGHT + 4, 2, "direccion: %c", tecla);
+        switch(tecla){
+            case 'd':
+                culebra.dir = DERECHA;
+                break;
+            case 'w':
+                culebra.dir = ARRIBA;
+                break; 
+            case 'a':
+                culebra.dir = IZQUIERDA;
+                break;
+            case 's':
+                culebra.dir = ABAJO;
+                break;
+            default:
+                continue;
+        }
     }
 
-    game_over();
     return 0;
 }
 
-void setup() {
+void setup(Culebra *culebra, Nodo *fruta){
     initscr();
     noecho();
     curs_set(0);
 
     srand(time(NULL));
 
-    snake.position.x = WIDTH / 2;
-    snake.position.y = HEIGHT / 2;
-    snake.length = 1;
-    snake.direction = KEY_RIGHT;
+    culebra->nodo.x = WIDTH / 2;
+    culebra->nodo.y = HEIGHT / 2;
+    culebra->nodo.tipo = CABEZA;
+    culebra->dir = DERECHA;
+    culebra->sig = NULL;
+    culebra->ant = NULL;
 
-    fruit.position.x = rand() % WIDTH;
-    fruit.position.y = rand() % HEIGHT;
-    fruit.eaten = 0;
+    fruta->x = rand() % WIDTH;
+    fruta->y = rand() % HEIGHT;
+    fruta->tipo = MANZANA;
 }
 
-void draw() {
+void draw(Culebra *culebra, Nodo *fruta){
+    Culebra *aux = malloc(sizeof(struct Culebra));
+    aux = culebra;
     clear();
 
+    // bordes
     for (int i = 0; i < WIDTH + 2; i++)
-        mvprintw(0, i, "#");
+        mvprintw(0, i, "-");
     for (int i = 0; i < HEIGHT + 2; i++)
-        mvprintw(i, 0, "#");
+        mvprintw(i, 0, "|");
     for (int i = 0; i < HEIGHT + 2; i++)
-        mvprintw(i, WIDTH + 1, "#");
+        mvprintw(i, WIDTH + 1, "|");
     for (int i = 0; i < WIDTH + 2; i++)
-        mvprintw(HEIGHT + 1, i, "#");
+        mvprintw(HEIGHT + 1, i, "-");
 
-    mvprintw(fruit.position.y + 1, fruit.position.x + 1, "*");
+    // fruta
+    mvprintw(fruta->y, fruta->x, "*");
 
-    for (int i = 0; i < snake.length; i++)
-        mvprintw(snake.body[i].y + 1, snake.body[i].x + 1, "O");
+    // culebra
+    while(aux){
+        mvprintw(aux->nodo.y, aux->nodo.x, "@");
+        aux = aux->ant;
+    }
 
-    mvprintw(HEIGHT + 3, 2, "Score: %d", score);
+    mvprintw(HEIGHT + 3, 2, "direccion: %d", culebra->dir);
 
     refresh();
 }
 
-void input() {
-    int key = getch();
+void grow(Culebra *culebra, Nodo *fruta){
+    Culebra *nuevo = malloc(sizeof(struct Culebra));
+    fruta->tipo = CUERPO;
+    nuevo->nodo = *fruta;
+    nuevo->ant = NULL;
 
-    switch (key) {
-        case KEY_UP:
-            if (snake.direction != KEY_DOWN)
-                snake.direction = KEY_UP;
-            break;
-        case KEY_DOWN:
-            if (snake.direction != KEY_UP)
-                snake.direction = KEY_DOWN;
-            break;
-        case KEY_LEFT:
-            if (snake.direction != KEY_RIGHT)
-                snake.direction = KEY_LEFT;
-            break;
-        case KEY_RIGHT:
-            if (snake.direction != KEY_LEFT)
-                snake.direction = KEY_RIGHT;
-            break;
-        case 'q':
-            game_running = 0;
-            break;
-    }
-}
-
-void logic() {
-    Point prev = snake.position;
-
-    switch (snake.direction) {
-        case KEY_UP:
-            snake.position.y--;
-            break;
-        case KEY_DOWN:
-            snake.position.y++;
-            break;
-        case KEY_LEFT:
-            snake.position.x--;
-            break;
-        case KEY_RIGHT:
-            snake.position.x++;
-            break;
-    }
-
-    if (snake.position.x <= 0 || snake.position.x >= WIDTH + 1 ||
-        snake.position.y <= 0 || snake.position.y >= HEIGHT + 1)
-    {
-        game_running = 0;
-        return;
-    }
-
-    for (int i = 0; i < snake.length; i++) {
-        if (snake.position.x == snake.body[i].x &&
-            snake.position.y == snake.body[i].y)
-        {
-            game_running = 0;
-            return;
-        }
-    }
-
-    if (snake.position.x == fruit.position.x &&
-        snake.position.y == fruit.position.y)
-    {
-        score++;
-        snake.length++;
-        fruit.position.x = rand() % WIDTH;
-        fruit.position.y = rand() % HEIGHT;
-    }
-
-    Point temp;
-    Point prev2 = prev;
-
-    for (int i = 0; i < snake.length; i++) {
-        temp = snake.body[i];
-        snake.body[i] = prev2;
-        prev2 = temp;
-    }
-}
-
-void game_over() {
-    clear();
-    mvprintw(HEIGHT / 2, WIDTH / 2 - 4, "Game Over!");
-    mvprintw(HEIGHT / 2 + 1, WIDTH / 2 - 4, "Score: %d", score);
-    refresh();
-    sleep(2);
-    endwin();
+    while(culebra->ant)
+        culebra = culebra->ant;
+    
+    nuevo->sig = culebra;
+    culebra->ant = nuevo;
 }
