@@ -1,6 +1,3 @@
-/******************************************************************************
-Insertar como cola
-*******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 struct Dato{
@@ -20,7 +17,6 @@ void despliega(struct Dato *i){
 int main()
 {
     struct Dato *Inicio=NULL, *nuevo,*aux;
-    //3
     nuevo=malloc(sizeof(struct Dato));
    
     printf("dato:");
