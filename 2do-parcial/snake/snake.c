@@ -1,4 +1,5 @@
-#include "util.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <time.h>
 #include <ncurses.h>
@@ -26,15 +27,15 @@ typedef struct Culebra{
     struct Culebra *ant, *sig;
 } Culebra;
 
-void setup(Culebra *culebra, Nodo *fruta);
-void draw(Culebra *culebra, Nodo *fruta);
-void grow(Culebra *culebra, Nodo *fruta);
+void setup();
+void draw();
+void grow();
 void* gameLogic(void* arg);
 void* userInput(void* arg);
 
 Culebra culebra;
 Nodo fruta;
-int run = 1;
+int run = 1, puntos = 1;
 
 int main(){
     pthread_t gameLogicThread, userInputThread;
@@ -53,11 +54,31 @@ int main(){
 }
 
 void* gameLogic(void* arg) {
-    setup(&culebra, &fruta);
+    setup();
+
+    Culebra *aux = malloc(sizeof(struct Culebra));
 
     while(run){
-        draw(&culebra, &fruta);
-        
+        draw();
+
+        // condicionales antes del movimiento
+        if (culebra.nodo.x == fruta.x &&
+        culebra.nodo.y == fruta.y){
+            puntos++;
+            grow();
+        }
+
+        aux = &culebra;
+        while(aux->ant){
+            aux = aux->ant;
+        }
+
+        while(aux->sig){
+            aux->nodo.x = aux->sig->nodo.x;
+            aux->nodo.y = aux->sig->nodo.y;
+            aux = aux->sig;
+        }
+
         switch(culebra.dir){
             case DERECHA:
                 culebra.nodo.x++;
@@ -98,7 +119,7 @@ void* userInput(void* arg) {
             case 's':
                 culebra.dir = ABAJO;
                 break;
-            case 'q':
+            case 27:
                 run = 0;
         }
     }
@@ -108,7 +129,7 @@ void* userInput(void* arg) {
     return NULL;
 }
 
-void setup(Culebra *culebra, Nodo *fruta){
+void setup(){
     initscr();
     cbreak();
     noecho();
@@ -116,21 +137,21 @@ void setup(Culebra *culebra, Nodo *fruta){
 
     srand(time(NULL));
 
-    culebra->nodo.x = WIDTH / 2;
-    culebra->nodo.y = HEIGHT / 2;
-    culebra->nodo.tipo = CABEZA;
-    culebra->dir = DERECHA;
-    culebra->sig = NULL;
-    culebra->ant = NULL;
+    culebra.nodo.x = WIDTH / 2;
+    culebra.nodo.y = HEIGHT / 2;
+    culebra.nodo.tipo = CABEZA;
+    culebra.dir = DERECHA;
+    culebra.sig = NULL;
+    culebra.ant = NULL;
 
-    fruta->x = rand() % WIDTH;
-    fruta->y = rand() % HEIGHT;
-    fruta->tipo = MANZANA;
+    fruta.x = rand() % WIDTH + 1;
+    fruta.y = rand() % HEIGHT + 1;
+    fruta.tipo = MANZANA;
 }
 
-void draw(Culebra *culebra, Nodo *fruta){
+void draw(){
     Culebra *aux = malloc(sizeof(struct Culebra));
-    aux = culebra;
+    aux = &culebra;
     clear();
 
     // bordes
@@ -144,10 +165,12 @@ void draw(Culebra *culebra, Nodo *fruta){
         mvprintw(HEIGHT + 1, i, "-");
 
     // tablero
-    mvprintw(HEIGHT + 3, 2, "direccion: %i", culebra->dir);
+    mvprintw(HEIGHT + 3, 2, "direccion: %i", culebra.dir);
+    mvprintw(HEIGHT + 4, 2, "puntos: %i", puntos);
+    mvprintw(HEIGHT + 6, 2, "presione ESC para salir");
 
     // fruta
-    mvprintw(fruta->y, fruta->x, "*");
+    mvprintw(fruta.y, fruta.x, "*");
 
     // culebra
     while(aux){
@@ -158,15 +181,19 @@ void draw(Culebra *culebra, Nodo *fruta){
     refresh();
 }
 
-void grow(Culebra *culebra, Nodo *fruta){
-    Culebra *nuevo = malloc(sizeof(struct Culebra));
-    fruta->tipo = CUERPO;
-    nuevo->nodo = *fruta;
-    nuevo->ant = NULL;
+void grow(){
+        Culebra *aux = &culebra;
+        Culebra *nuevo = malloc(sizeof(Culebra));
 
-    while(culebra->ant)
-        culebra = culebra->ant;
-    
-    nuevo->sig = culebra;
-    culebra->ant = nuevo;
+        while(aux->ant){
+            aux = aux->ant;
+        }
+
+        nuevo->nodo.tipo = CUERPO;
+
+        nuevo->sig = aux;
+        aux->ant = nuevo;
+
+        fruta.x = rand() % WIDTH + 1;
+        fruta.y = rand() % HEIGHT + 1;
 }
