@@ -138,41 +138,29 @@ ZrZ - 24/02/22 - Modified for GdbOnline
 #define WHITE        15
 #define BLINK        128
 int bgc=40;
-/*
-class __CONIO_H{
-  private:
-    int bgc;
-  public:
-    __CONIO_H(){
-      bgc=40;
-      }
-      
-    ~__CONIO_H(){
-      printf("\033[m");
-      }
-  */    
-    void clreol(){
-      printf("\033[K");
-      }
-      
-    void insline(){
-      printf( "\x1b[1L");
-      }
-  
-    void delline(){
-      printf( "\033[1M");
-      }
 
-    void gotoxy(int x,int y){
-      printf("\033[%d;%df",y,x);
-      }
+void clreol(){
+  printf("\033[K");
+}
       
-    void clrscr(){
-      printf( "\033[%dm\033[2J\033[1;1f",bgc);
-      }
+void insline(){
+  printf( "\x1b[1L");
+}
+  
+void delline(){
+  printf( "\033[1M");
+}
+
+void gotoxy(int x,int y){
+  printf("\033[%d;%df",y,x);
+}
       
-    void textbackground(int color){
-      switch(color%16){
+void clrscr(){
+  printf( "\033[%dm\033[2J\033[1;1f",bgc);
+}
+      
+void textbackground(int color){
+  switch(color%16){
 	  case BLACK:          bgc=40;break;
 	  case BLUE:           bgc=44;break;
 	  case GREEN:          bgc=42;break;
@@ -190,10 +178,10 @@ class __CONIO_H{
 	  case YELLOW:         bgc=43;break;
 	  case WHITE:          bgc=47;break;
 	}
-      }
+}
 
-    void textcolor(short color){  
-      switch(color%16){
+void textcolor(short color){  
+  switch(color%16){
 	  case BLACK:          printf("\033[0;%d;%dm",30,bgc);break;
 	  case BLUE:           printf("\033[0;%d;%dm",34,bgc);break;
 	  case GREEN:          printf("\033[0;%d;%dm",32,bgc);break;
@@ -211,16 +199,16 @@ class __CONIO_H{
 	  case YELLOW:         printf("\033[1;%d;%dm",33,bgc);break;
 	  case WHITE:          printf("\033[1;%d;%dm",37,bgc);break;
 	}
-      }
+}
     
-    int ungetch(int ch){
-      return ungetc(ch, stdin);
-      }
+int ungetch(int ch){
+  return ungetc(ch, stdin);
+}
     
-    int getch_echo(bool echo){
-      struct termios oldt, newt;
-      int ch;
-      tcgetattr( STDIN_FILENO, &oldt );
+int getch_echo(bool echo){
+  struct termios oldt, newt;
+    int ch;
+       tcgetattr( STDIN_FILENO, &oldt );
       newt = oldt;
       newt.c_lflag &= ~ICANON;
       if(echo)

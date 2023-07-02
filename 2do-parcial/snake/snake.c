@@ -2,9 +2,10 @@
 #include <unistd.h>
 #include <time.h>
 #include <ncurses.h>
+#include <pthread.h>
 
 #define WIDTH 40
-#define HEIGHT 40
+#define HEIGHT 20
 
 #define CABEZA  1
 #define CUERPO  2
@@ -28,39 +29,62 @@ typedef struct Culebra{
 void setup(Culebra *culebra, Nodo *fruta);
 void draw(Culebra *culebra, Nodo *fruta);
 void grow(Culebra *culebra, Nodo *fruta);
+void* gameLogic(void* arg);
+void* userInput(void* arg);
+
+Culebra culebra;
+Nodo fruta;
+int run = 1;
 
 int main(){
-    Culebra culebra;
-    Nodo fruta;
+    pthread_t gameLogicThread, userInputThread;
 
+    // Crear los hilos
+    pthread_create(&gameLogicThread, NULL, gameLogic, NULL);
+    pthread_create(&userInputThread, NULL, userInput, NULL);
+
+    // Esperar a que los hilos terminen
+    pthread_join(gameLogicThread, NULL);
+    pthread_join(userInputThread, NULL);
+
+    
+
+    return 0;
+}
+
+void* gameLogic(void* arg) {
     setup(&culebra, &fruta);
-    grow(&culebra, &fruta);
-    grow(&culebra, &fruta);
-    grow(&culebra, &fruta);
 
-    while(1){
-        while(!kbhit()){
-            draw(&culebra, &fruta);
-            switch(culebra.dir){
-                case DERECHA:
-                    culebra.nodo.x++;
-                    break;
-                case ARRIBA:
-                    culebra.nodo.y--;
-                    break; 
-                case IZQUIERDA:
-                    culebra.nodo.x--;
-                    break;
-                case ABAJO:
-                    culebra.nodo.y++;
-                    break;
-            }
-            usleep(100000);
-        }
+    while(run){
+        draw(&culebra, &fruta);
         
+        switch(culebra.dir){
+            case DERECHA:
+                culebra.nodo.x++;
+                break;
+            case ARRIBA:
+                culebra.nodo.y--;
+                break; 
+            case IZQUIERDA:
+                culebra.nodo.x--;
+                break;
+            case ABAJO:
+                culebra.nodo.y++;
+                break;
+        }
+        system("sleep 0.1");
+    }
+    return NULL;
+}
+
+void* userInput(void* arg) {
+    system("stty -echo"); // supress echo
+    system("stty cbreak"); // go to RAW mode
+
+    while (run) {
         // cambio de direccion
         char tecla = getch();
-        mvprintw(HEIGHT + 4, 2, "direccion: %c", tecla);
+
         switch(tecla){
             case 'd':
                 culebra.dir = DERECHA;
@@ -74,16 +98,19 @@ int main(){
             case 's':
                 culebra.dir = ABAJO;
                 break;
-            default:
-                continue;
+            case 'q':
+                run = 0;
         }
     }
+    system ("stty echo"); // Make echo work
+    system("stty -cbreak");// go to COOKED mode
 
-    return 0;
+    return NULL;
 }
 
 void setup(Culebra *culebra, Nodo *fruta){
     initscr();
+    cbreak();
     noecho();
     curs_set(0);
 
@@ -116,6 +143,9 @@ void draw(Culebra *culebra, Nodo *fruta){
     for (int i = 0; i < WIDTH + 2; i++)
         mvprintw(HEIGHT + 1, i, "-");
 
+    // tablero
+    mvprintw(HEIGHT + 3, 2, "direccion: %i", culebra->dir);
+
     // fruta
     mvprintw(fruta->y, fruta->x, "*");
 
@@ -124,8 +154,6 @@ void draw(Culebra *culebra, Nodo *fruta){
         mvprintw(aux->nodo.y, aux->nodo.x, "@");
         aux = aux->ant;
     }
-
-    mvprintw(HEIGHT + 3, 2, "direccion: %d", culebra->dir);
 
     refresh();
 }

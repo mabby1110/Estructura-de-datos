@@ -5,9 +5,9 @@ DEBUG = -g
 SOURCES = snake
  
 all:
-	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES).o -lncurses
+	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES).o -lncurses -pthread
 debug:
-	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES).o -lncurses
+	$(CC) $(SOURCES).c $(CFLAGS) -o $(SOURCES).o -lncurses -pthread
 clean:
 	rm -f $(SOURCES).o
 fresh:
