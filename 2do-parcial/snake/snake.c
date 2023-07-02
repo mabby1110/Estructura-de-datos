@@ -30,6 +30,7 @@ typedef struct Culebra{
 void setup();
 void draw();
 void grow();
+void endGame();
 void* gameLogic(void* arg);
 void* userInput(void* arg);
 
@@ -62,35 +63,61 @@ void* gameLogic(void* arg) {
         draw();
 
         // condicionales antes del movimiento
-        if (culebra.nodo.x == fruta.x &&
-        culebra.nodo.y == fruta.y){
+        if (culebra.nodo.x == fruta.x
+            && culebra.nodo.y == fruta.y){
             puntos++;
             grow();
         }
 
+        // actualizar cuerpo de la culebra
         aux = &culebra;
         while(aux->ant){
             aux = aux->ant;
         }
 
         while(aux->sig){
+            // la culebra se muerde la cola
+            if (culebra.nodo.x == aux->nodo.x
+                && culebra.nodo.y == aux->nodo.y){
+                    if(aux->sig->nodo.tipo != CABEZA){
+                        endGame();
+                    }
+            }
+
             aux->nodo.x = aux->sig->nodo.x;
             aux->nodo.y = aux->sig->nodo.y;
             aux = aux->sig;
         }
 
+        // movimiento
         switch(culebra.dir){
             case DERECHA:
-                culebra.nodo.x++;
+                if(culebra.nodo.x >= WIDTH){
+                    culebra.nodo.x = 1;
+                } else{
+                    culebra.nodo.x++;
+                }
                 break;
             case ARRIBA:
-                culebra.nodo.y--;
-                break; 
+                if(culebra.nodo.y <= 0){
+                    culebra.nodo.y = HEIGHT;
+                } else{
+                    culebra.nodo.y--;
+                }
+                break;
             case IZQUIERDA:
-                culebra.nodo.x--;
+                if(culebra.nodo.x <= 0){
+                    culebra.nodo.x = WIDTH;
+                } else{
+                    culebra.nodo.x--;
+                }
                 break;
             case ABAJO:
-                culebra.nodo.y++;
+                if(culebra.nodo.y >= HEIGHT){
+                    culebra.nodo.y = 1;
+                } else{
+                    culebra.nodo.y++;
+                }
                 break;
         }
         system("sleep 0.1");
@@ -108,16 +135,20 @@ void* userInput(void* arg) {
 
         switch(tecla){
             case 'd':
-                culebra.dir = DERECHA;
+                if (culebra.dir != IZQUIERDA)
+                    culebra.dir = DERECHA;
                 break;
             case 'w':
-                culebra.dir = ARRIBA;
+                if (culebra.dir != ABAJO)
+                    culebra.dir = ARRIBA;
                 break; 
             case 'a':
-                culebra.dir = IZQUIERDA;
+                if (culebra.dir != DERECHA)
+                    culebra.dir = IZQUIERDA;
                 break;
             case 's':
-                culebra.dir = ABAJO;
+                if (culebra.dir != ARRIBA)
+                    culebra.dir = ABAJO;
                 break;
             case 27:
                 run = 0;
@@ -196,4 +227,11 @@ void grow(){
 
         fruta.x = rand() % WIDTH + 1;
         fruta.y = rand() % HEIGHT + 1;
+}
+
+void endGame(){
+    run = 0;
+    draw();
+    mvprintw(HEIGHT / 2, WIDTH / 2, "HAZ PERDIDO!!!");
+    refresh();
 }
