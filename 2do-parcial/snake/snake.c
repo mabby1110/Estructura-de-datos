@@ -34,10 +34,12 @@ void endGame();
 void* gameLogic(void* arg);
 void* userInput(void* arg);
 
+// variables globales
 Culebra culebra;
 Nodo fruta;
 int run = 1, puntos = 1;
 
+// juego
 int main(){
     pthread_t gameLogicThread, userInputThread;
 
@@ -48,8 +50,6 @@ int main(){
     // Esperar a que los hilos terminen
     pthread_join(gameLogicThread, NULL);
     pthread_join(userInputThread, NULL);
-
-    
 
     return 0;
 }
@@ -161,13 +161,16 @@ void* userInput(void* arg) {
 }
 
 void setup(){
+    // cosas para ncurses
     initscr();
     cbreak();
     noecho();
     curs_set(0);
 
+    // semilla aleatoria
     srand(time(NULL));
 
+    // se asignan los valores iniciales a la cabeza
     culebra.nodo.x = WIDTH / 2;
     culebra.nodo.y = HEIGHT / 2;
     culebra.nodo.tipo = CABEZA;
@@ -175,6 +178,7 @@ void setup(){
     culebra.sig = NULL;
     culebra.ant = NULL;
 
+    // se asignan los valores para la fruta
     fruta.x = rand() % WIDTH + 1;
     fruta.y = rand() % HEIGHT + 1;
     fruta.tipo = MANZANA;
@@ -213,6 +217,7 @@ void draw(){
 }
 
 void grow(){
+        // crea un nuevo espacio en memoria y se enlaza al final
         Culebra *aux = &culebra;
         Culebra *nuevo = malloc(sizeof(Culebra));
 
@@ -232,6 +237,6 @@ void grow(){
 void endGame(){
     run = 0;
     draw();
-    mvprintw(HEIGHT / 2, WIDTH / 2, "HAZ PERDIDO!!!");
+    mvprintw(HEIGHT / 2, WIDTH / 2, "HAS PERDIDO!!!");
     refresh();
 }
