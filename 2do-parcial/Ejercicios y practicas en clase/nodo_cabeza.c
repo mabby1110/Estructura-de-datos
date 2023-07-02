@@ -7,9 +7,9 @@ typedef struct nodo{
 
 Nodo * nuevo; 
 nuevo = (Nodo*)malloc(sizeof(Nodo)); 
-nuevo -> dato = entrada; 
+nuevo->dato = entrada; 
 
-nuevo -> siguiente = cabeza; 
+nuevo->siguiente = cabeza; 
 
 cabeza = nuevo; 
 
@@ -17,8 +17,8 @@ void insertPrimero(Nodo** cabeza, Item entrada){
 
     Nodo * nuevo; 
     nuevo = (Nodo*)malloc(sizeof(Nodo)); 
-    nuevo -> dato = entrada; 
-    nuevo -> siguiente = *cabeza; 
+    nuevo->dato = entrada; 
+    nuevo->siguiente = *cabeza; 
     *cabeza = nuevo;  
 }
 

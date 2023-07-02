@@ -14,11 +14,10 @@ Welcome to GDB Online.
 int main()
 {
     int numero; 
-    int * memoria; 
-    int * memoria2; 
+    int *memoria; 
+    int *memoria2; 
     int i = 0; 
     
-
     printf("¿Cuantas calificaciones necesitas");
     scanf("%i",&numero);
 

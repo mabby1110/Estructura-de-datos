@@ -26,7 +26,7 @@ int main()
     printf("dato:");
     scanf("%i",&nuevo->numero);
     nuevo->sig=NULL;
-    nuevo->ant=NULL; // ---------------------
+    nuevo->ant=NULL;
     
     if(Inicio==NULL)
     {
@@ -40,11 +40,8 @@ int main()
             aux=aux->sig;
         }
         aux->sig=nuevo;
-        nuevo->ant=aux; //----------------
+        nuevo->ant=aux;
     }
-    
-    
-    
     
     despliega(Inicio);
     
