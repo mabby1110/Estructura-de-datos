@@ -1,6 +1,6 @@
 # 2do parcial
 
-El tema principal de este parcial fueron listas enlazadas, se trabajo con los tipos de lista simple, doble y ordenada, se desarrollaron ejemplos y metodos para poder usar y modificar cada tipo de lista.
+El tema principal de este parcial fue el de listas enlazadas, se trabajo con los tipos de listas simples, dobles y ordenadas, se desarrollaron ejemplos y metodos para poder usar y modificar cada tipo de lista.
 
 El proyecto de esta unidad fue el SNAKE, el juego se muestra en terminal, el cuerpo de la culebra funciona con el uso de una lista enlazada doble.
 
