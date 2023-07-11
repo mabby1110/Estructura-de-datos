@@ -22,7 +22,7 @@ int main(){
     addNode(&(raiz->izq), "B");
     addNode(&(raiz->izq->izq), "D");
     addNode(&(raiz->izq->izq->izq), "G");
-    addNode(&(raiz->izq->izq->izq->izq), "K");
+    addNode(&(raiz->izq->izq->izq->der), "K");
 
     addNode(&(raiz->der), "C");
     addNode(&(raiz->der->izq), "E");
