@@ -13,7 +13,8 @@ int isValidSimbol(char *p){
 int main(){
     char cadena[] = "oh4na = f4milia";
     char *p;
-    int estdo = 1;
+    int estado = 1;
+    int punto = 0;
 
     p = cadena;
 
@@ -28,6 +29,7 @@ int main(){
                     if(isalpha(*p) != 0){
                         estado++;
                     } else {
+                        printf("\ncadena incorrecta");
                         return 1;
                     }
                     break;
@@ -35,26 +37,48 @@ int main(){
                     if(!isalpha(*p) || !isdigit(*p) || *p != '-' || *p != '_'){
                         if(*p == '='){
                             estado ++;
-                        } else if (isValidSimbol(p)){
+                        } else {
+                            printf("\ncadena incorrecta");
                             return 1;
                         }
+                        break;
                     }
-                case 3: // pasando el =
-                    if(isalpha(*p) != 0){
-                        estado++;
-                    } else {
-                        return 1;
+                case 3: // pasando el = saber si es numero o variable
+                    if(isalpha(*p)){ // es variable
+                        estado = 4;
+                    } else if(isdigit(*p)){
+                        estado = 5;
                     }
                     break;
-                case 4:
-                    if(isValidSimbol(p)){
-                        estado++;
+                case 4: // terminar variable
+                    if(!isalpha(*p) || !isdigit(*p) || *p != '-' || *p != '_'){
+                        if(isValidSimbol(p)){
+                            estado = 3;
+                        } else {
+                            printf("\ncadena incorrecta");
+                            return 1;
+                        }
+                        break;
+                    }
+                case 5: // terminar numero
+                    if(!isdigit(*p) && *p != '.'){
+                        if(isValidSimbol(p)){
+                            estado = 3;
+                        } else {
+                            printf("\ncadena incorrecta");
+                            return 1;
+                        }
+                    } else if(*p == '.' && punto == 1){
+                        printf("\ncadena incorrecta");
+                        return 1;
                     }
                     break;
             }
         }
         p++;
     }
+
+    printf("\ncadena correcta");
 
     return 0;
 }
