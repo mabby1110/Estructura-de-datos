@@ -8,10 +8,11 @@
 Fecha de entrega: 2023-08-04
 
 ---
-# Reflexion
+# Reflexión
   
 Los métodos de ordenamiento son como la manera en que organizamos nuestras cosas en casa para encontrarlas fácilmente. Imagina tu habitación: cuando colocas tus libros en estantes o tu ropa en cajones, todo se vuelve más ordenado y puedes acceder a lo que necesitas sin problemas. De la misma forma, en la programación y la computación, usamos métodos de ordenamiento para organizar listas de información, como números o nombres, para que podamos buscar y trabajar con esos datos de manera eficiente. Cada método de ordenamiento es como una herramienta diferente para poner en orden las cosas, y elegimos la que mejor se adapte a la situación, al igual que eliges si guardar tus zapatos en un estante o en un cajón en función de lo que sea más práctico.
 
+Códigos en github [[[Estructura-de-datos/3er-parcial at noise · mabby1110/Estructura-de-datos · GitHub](https://github.com/mabby1110/Estructura-de-datos/tree/noise/3er-parcial)|Estructura de datos]]
 # Shell
 ```c
 #include <stdio.h>
